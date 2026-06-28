@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  ml_api:
+    build: ./app
+    container_name: ml_api_container
+    expose:
+      - "8000"
+    restart: always
+
+  web_server:
+    image: nginx:alpine
+    container_name: nginx_proxy_container
+    ports:
+      - "8585:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - ml_api
+    restart: always
