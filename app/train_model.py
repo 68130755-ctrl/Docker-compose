@@ -1,25 +1,42 @@
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 import joblib
+from feature_extractor import extract_features
 
-X_train = np.array([
-    # เว็บปกติ (Label 0)
-    [22, 1, 0, 0, 0, 0, 1, 0, 0, 10],
-    [25, 2, 0, 0, 0, 0, 1, 0, 0, 13],
-    [32, 2, 1, 0, 0, 0, 1, 0, 0, 18],
-    [28, 1, 0, 0, 0, 0, 1, 0, 0, 15],
-    
-    # เว็บ Phishing (Label 1)
-    [85, 4, 3, 1, 2, 3, 0, 1, 1, 25],
-    [95, 5, 4, 0, 1, 2, 0, 0, 1, 35],
-    [110, 6, 5, 1, 3, 4, 0, 1, 1, 40],
-    [78, 3, 2, 0, 1, 2, 0, 0, 1, 28]
-])
+# 1. รายการ URL ตัวอย่างสำหรับเทรนโมเดล
+urls_safe = [
+    "https://google.com",
+    "www.google.com",
+    "https://www.google.com",
+    "https://github.com",
+    "https://github.com/68130755-ctrl/Docker-compose",
+    "https://aws.amazon.com",
+    "https://facebook.com",
+    "www.facebook.com"
+]
 
-y_train = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+urls_phishing = [
+    "www.g00gle.com",
+    "https://paypa1.com",
+    "http://192.168.1.1/login-verify-account?user=test@paypal.com",
+    "http://10.0.0.1/ebay-account-update?verify=true@check",
+    "http://login-secure-bank-update.xyz/account",
+    "http://secure-update-banking-paypal.com/signin/verify",
+    "http://192.168.1.50/account/login",
+    "http://verify-your-account-now.com/login"
+]
 
-model = RandomForestClassifier(n_estimators=10, random_state=42)
+# 2. แปลง URL เป็น Features โดยใช้ feature_extractor ตรงๆ
+X_safe = [extract_features(url) for url in urls_safe]
+X_phishing = [extract_features(url) for url in urls_phishing]
+
+X_train = np.array(X_safe + X_phishing)
+y_train = np.array([0] * len(urls_safe) + [1] * len(urls_phishing))
+
+# 3. เทรนโมเดล Random Forest
+model = RandomForestClassifier(n_estimators=30, random_state=42)
 model.fit(X_train, y_train)
 
+# 4. บันทึกโมเดล
 joblib.dump(model, 'phishing_model.pkl')
-print("✅ บันทึกโมเดลสำเร็จ: phishing_model.pkl")
+print("✅ บันทึกโมเดลฉบับปรับปรุงสมบูรณ์เรียบร้อยแล้ว!")
